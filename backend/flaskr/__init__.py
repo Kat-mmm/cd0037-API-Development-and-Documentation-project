@@ -12,20 +12,195 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
+    CORS(app, resources={r"/api/*" : {'origins': '*'}})
 
-    """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    """
+    #cors headers
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Allow-Control-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Allow-Control-Methods', 'POST, GET, PATCH, DELETE')
 
-    """
-    @TODO: Use the after_request decorator to set Access-Control-Allow
-    """
+        return response
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests
-    for all available categories.
-    """
+    def paginate_questions(request, selection):
+        page = request.args.get('page', 1, type=int)
+        start = (page - 1) * QUESTIONS_PER_PAGE
+        end = start + QUESTIONS_PER_PAGE
+
+        questions = [question.format() for question in selection]
+        current_questions = questions[start:end]
+
+        return current_questions
+    
+    @app.route('/categories', methods=['GET'])
+    def get_categories():
+        categories = Category.query.all()
+
+        return jsonify({
+            'success' : True,
+            'categories' : {category.id : category.type for category in categories}
+        })
+    
+    @app.route('/questions', methods=['GET'])
+    def get_questions():
+        selection = Question.query.all() 
+        current_questions = paginate_questions(request, selection)
+        categories = Category.query.order_by(Category.type).all()  
+
+        if len(current_questions) == 0:
+            abort(404)
+
+        return jsonify({
+            'success' : True,
+            'questions' : current_questions,
+            'totalQuestions' : len(selection),
+            'categories' : {category.id : category.type for category in categories},
+            'currentCategory' : ''
+        })
+
+    @app.route('/questions/<int:id>', methods=['DELETE'])
+    def delete_question(id):
+        try:
+            question = Question.query.filter(Question.id == id).one_or_none()
+
+            if question is None:
+                abort(404)
+            
+            question.delete()
+
+            return jsonify({
+                'success' : True,
+                'deleted' : question.id,
+            })
+        except:
+            abort(422)            
+
+    @app.route('/questions', methods=['POST'])
+    def post_question():
+        body = request.get_json()
+
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_difficulty = body.get('difficulty', None)
+        new_category = body.get('category', None)
+        searchTerm = body.get('searchTerm', None)
+
+        try:
+            if searchTerm:
+                selection = Question.query.order_by(Question.id).filter(Question.question.ilike(f'%{searchTerm}%'))
+                current_questions = paginate_questions(request, selection)
+
+                if len(current_questions) == 0:
+                    abort(404)
+
+                return jsonify({
+                    'success' : True,
+                    'questions' : current_questions,
+                    'totalQuestions' : len(current_questions),
+                    'currentCategory' : ''
+                })
+
+            else:
+                question = Question(question = new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
+                question.insert()
+
+                selection = Question.query.all()
+                current_questions = paginate_questions(request, selection)
+
+                if len(current_questions) == 0:
+                    abort(404)
+
+                return jsonify({
+                    'success' : True,
+                    'created' : question.id,
+                    'questions' : current_questions,
+                    'totalQuestions' : len(selection),
+                    'currentCategory' : ''
+                })
+        except:
+            abort(422)
+
+    @app.route('/categories/<int:id>/questions', methods=['GET'])
+    def get_questions_categories(id):
+        try:
+            questions = Question.query.filter(Question.category == id).all()
+            formatted_questions = [question.format() for question in questions]
+
+            category = Category.query.filter(Category.id == id).first()
+
+            return jsonify({
+                'success' : True,
+                'questions' : formatted_questions,
+                'totalQuestions' : len(Question.query.all()),
+                'currentCategory' : category.type
+            })
+        except:
+            abort(422)
+
+    
+    @app.route('/quizzes', methods=['POST'])
+    def get_questions_to_play():
+        body = request.get_json()
+
+        previous_questions = body.get('previous_questions', None)
+        quiz_category = body.get('quiz_category', None)
+
+        try:
+            if quiz_category['id'] == 0:
+                questions = Question.query.all()
+            else:
+                questions = Question.query.filter(Question.category == quiz_category['id']).all()
+            
+            current_questions = [question.format() for question in questions]
+            next_question = random.choice(current_questions)
+
+            if len(previous_questions) == len(current_questions):
+                next_question = None
+            return jsonify({
+                'success' : True,
+                'question' : next_question
+            })
+        except:
+            abort(422)
+
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'success' : False,
+            'error' : 404,
+            'message' : 'resource not found' 
+        }), 404
+    
+    @app.errorhandler(422)
+    def unproccesable(error):
+        return jsonify({
+            'success' : False,
+            'error' : 422,
+            'message' : 'unprocessable'
+        }), 422
+    
+    
+
+
+    
+
+
+
+
+    # """
+    # @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+    # """
+
+    # """
+    # @TODO: Use the after_request decorator to set Access-Control-Allow
+    # """
+
+    # """
+    # @TODO:
+    # Create an endpoint to handle GET requests
+    # for all available categories.
+    # """
 
 
     """
@@ -44,12 +219,15 @@ def create_app(test_config=None):
     """
     @TODO:
     Create an endpoint to DELETE question using a question ID.
+    
 
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
 
     """
+    
+
     @TODO:
     Create an endpoint to POST a new question,
     which will require the question and answer text,

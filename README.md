@@ -47,3 +47,147 @@ Pay special attention to what data the frontend is expecting from each API respo
 By making notes ahead of time, you will practice the core skill of being able to read and understand code and will have a simple plan to follow to build out the endpoints of your backend API.
 
 > View the [Frontend README](./frontend/README.md) for more details.
+
+### Documentation API Refrence
+
+Getting started 
+    >BASE URL: The url can be run locally as it is not hosted. It can be run from the backend at http://127.0.0.1:5000/, then it will be set to http://localhost:3000/ on the frontend.
+    >AUTHENTICATION: None
+
+Error Handling
+    Errors are be returned as JSON objects using this format:
+
+    ```json
+        {
+            "error": 404, 
+            "message": "resource not found", 
+            "success": false
+        }
+    ```
+    This API will return only these type of erros:
+        > 404 : Not Found
+        > 422 : Unprocessable
+
+Endpoints
+    GET '/categories'
+    >Gets a dictionary of categories where the keys are the ids and the values are the string equivalent of the id
+    >Returns an object with the key 'categories' which has an object id : type
+
+        ```json
+            {
+            "categories": {
+                "1": "Science",
+                "2": "Art",
+                "3": "Geography",
+                "4": "History",
+                "5": "Entertainment",
+                "6": "Sports"
+            }
+            }
+        ```
+
+    GET '/questions?page={int}'
+    >Gets a dictionary of paginated questions where the keys are the ids and the values are the string equivalent of the id
+    >Request Argument: 'page' int
+    >Returns an object with the key 'questions' which has an object id : An object with 10 paginated questions, total questions, object including all categories, and current category string
+
+        ```json
+            {
+            "questions": [
+                {
+                "id": 2,
+                "question": "question",
+                "answer": "answer",
+                "difficulty": 3,
+                "category": 1
+                }
+            ],
+            "totalQuestions": 21,
+            "categories": {
+                "1": "Science",
+                "2": "Art",
+                "3": "Geography",
+                "4": "History",
+                "5": "Entertainment",
+                "6": "Sports"
+            },
+            "currentCategory": ""
+            }
+        ```
+
+    DELETE '/questions/<int:id>'
+    >Takes the id of the question to be deleted then deletes that specific question
+    >Request Argument: int id
+    >Does not require any return value, it will only return the status code to indicated success or not
+
+    POST '/questions'
+    >sends a post to create a new question
+    >Request Body:
+
+        ```json
+        {
+        "question": "new question",
+        "answer": "new answer",
+        "difficulty": 3,
+        "category": 1
+        }
+        ```
+    >Does not need to return any data
+
+    POST '/question'
+    >Sends a post to search for the provided search term
+    >Request Body:
+
+        ```json
+        {
+        "searchTerm": "search term from the user"
+        }
+        ```
+    >Returns a list of questions, a number of totalQuestions that met the search term and the current category string
+
+    GET '/categories/<int:id>/questions'
+    >gets the questions based on the spcific category id provided 
+    >Request Argument int id
+    >Returns an object with questions for the specified category, total questions, and current category string
+
+        ```json
+        {
+        "questions": [
+            {
+            "id": 3,
+            "question": "question",
+            "answer": "answer",
+            "difficulty": 3,
+            "category": 1
+            }
+        ],
+        "totalQuestions": 100,
+        "currentCategory": "Science"
+        }
+        ```
+
+    POST '/quizzes'
+    >Send a post to get the next question
+    >Request Body:
+
+        ```json
+        {
+            'previous_questions' : {[4, 2, 1, 10]}
+            'quiz_category' : 'currentCategory'
+        }
+        ```
+
+    >Returns and object with a single question
+
+        ```json
+        {
+        "question": {
+            "id": 1,
+            "question": "question",
+            "answer": "answer",
+            "difficulty": 3,
+            "category": 2
+        }
+        }
+        ```
+    
