@@ -50,144 +50,144 @@ By making notes ahead of time, you will practice the core skill of being able to
 
 ### Documentation API Refrence
 
-Getting started 
-    >BASE URL: The url can be run locally as it is not hosted. It can be run from the backend at http://127.0.0.1:5000/, then it will be set to http://localhost:3000/ on the frontend.
-    >AUTHENTICATION: None
+### Getting started 
+ 1. BASE URL The url can be run locally as it is not hosted. It can be run from the backend at http://127.0.0.1:5000/, then it will be set to http://localhost:3000/ on the frontend.
+ 2. AUTHENTICATION None
 
-Error Handling
-    Errors are be returned as JSON objects using this format:
+### Error Handling
+Errors are be returned as JSON objects using this format
 
-    ```json
+```json
+{
+    "error": 404, 
+    "message": "resource not found", 
+    "success": false
+}
+```
+This API will return only these type of erros:
+ 1. 404  Not Found
+ 2. 422 Unprocessable
+
+### Endpoints
+GET `'/categories'`
+ 1. Gets a dictionary of categories where the keys are the ids and the values are the string equivalent of the id
+ 2.  Returns an object with the key 'categories' which has an object id type
+
+```json
+{
+    "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+    }
+}
+```
+
+GET `'/questions?page={int}'`
+ 1. Gets a dictionary of paginated questions where the keys are the ids and the values are the string equivalent of the id
+ 2. Request Argument 'page' int
+ 3. Returns an object with the key 'questions' which has an object id  An object with 10 paginated questions, total questions, object including all categories, and current category string.
+
+```json
+{
+    "questions": [
         {
-            "error": 404, 
-            "message": "resource not found", 
-            "success": false
-        }
-    ```
-    This API will return only these type of erros:
-        > 404 : Not Found
-        > 422 : Unprocessable
-
-Endpoints
-    GET '/categories'
-    >Gets a dictionary of categories where the keys are the ids and the values are the string equivalent of the id
-    >Returns an object with the key 'categories' which has an object id : type
-
-        ```json
-            {
-            "categories": {
-                "1": "Science",
-                "2": "Art",
-                "3": "Geography",
-                "4": "History",
-                "5": "Entertainment",
-                "6": "Sports"
-            }
-            }
-        ```
-
-    GET '/questions?page={int}'
-    >Gets a dictionary of paginated questions where the keys are the ids and the values are the string equivalent of the id
-    >Request Argument: 'page' int
-    >Returns an object with the key 'questions' which has an object id : An object with 10 paginated questions, total questions, object including all categories, and current category string
-
-        ```json
-            {
-            "questions": [
-                {
-                "id": 2,
-                "question": "question",
-                "answer": "answer",
-                "difficulty": 3,
-                "category": 1
-                }
-            ],
-            "totalQuestions": 21,
-            "categories": {
-                "1": "Science",
-                "2": "Art",
-                "3": "Geography",
-                "4": "History",
-                "5": "Entertainment",
-                "6": "Sports"
-            },
-            "currentCategory": ""
-            }
-        ```
-
-    DELETE '/questions/<int:id>'
-    >Takes the id of the question to be deleted then deletes that specific question
-    >Request Argument: int id
-    >Does not require any return value, it will only return the status code to indicated success or not
-
-    POST '/questions'
-    >sends a post to create a new question
-    >Request Body:
-
-        ```json
-        {
-        "question": "new question",
-        "answer": "new answer",
+        "id": 2,
+        "question": "question",
+        "answer": "answer",
         "difficulty": 3,
         "category": 1
         }
-        ```
-    >Does not need to return any data
+    ],
+    "totalQuestions": 21,
+    "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+    },
+    "currentCategory": ""
+}
+```
 
-    POST '/question'
-    >Sends a post to search for the provided search term
-    >Request Body:
+DELETE `'/questions/<int:id>'`
+ 1. Takes the id of the question to be deleted then deletes that specific question
+ 2. Request Argument: int id
+ 3. Does not require any return value, it will only return the status code to indicated success or not
 
-        ```json
+POST `'/questions'`
+ 1. sends a post to create a new question
+ 2. Request Body
+
+```json
+{
+    "question": "new question",
+    "answer": "new answer",
+    "difficulty": 3,
+    "category": 1
+}
+```
+Does not need to return any data
+
+POST `'/question'`
+ 1. Sends a post to search for the provided search term
+ 2. Request Body
+
+```json
+{
+    "searchTerm": "search term from the user"
+}
+```
+ 3. Returns a list of questions, a number of totalQuestions that met the search term and the current category string
+
+GET `'/categories/<int:id>/questions'`
+ 1. gets the questions based on the spcific category id provided 
+ 2. Request Argument int id
+ 3. Returns an object with questions for the specified category, total questions, and current category string
+
+```json
+{
+    "questions": [
         {
-        "searchTerm": "search term from the user"
+        "id": 3,
+        "question": "question",
+        "answer": "answer",
+        "difficulty": 3,
+        "category": 1
         }
-        ```
-    >Returns a list of questions, a number of totalQuestions that met the search term and the current category string
+    ],
+    "totalQuestions": 100,
+    "currentCategory": "Science"
+}
+```
 
-    GET '/categories/<int:id>/questions'
-    >gets the questions based on the spcific category id provided 
-    >Request Argument int id
-    >Returns an object with questions for the specified category, total questions, and current category string
+POST `'/quizzes'`
+ 1. Send a post to get the next question
+ 2. Request Body:
 
-        ```json
-        {
-        "questions": [
-            {
-            "id": 3,
-            "question": "question",
-            "answer": "answer",
-            "difficulty": 3,
-            "category": 1
-            }
-        ],
-        "totalQuestions": 100,
-        "currentCategory": "Science"
-        }
-        ```
+```json
+{
+    "previous_questions" : {[4, 2, 1, 10]}
+    "quiz_category" : "currentCategory"
+}
+```
 
-    POST '/quizzes'
-    >Send a post to get the next question
-    >Request Body:
+ 3. Returns and object with a single question
 
-        ```json
-        {
-            'previous_questions' : {[4, 2, 1, 10]}
-            'quiz_category' : 'currentCategory'
-        }
-        ```
-
-    >Returns and object with a single question
-
-        ```json
-        {
-        "question": {
-            "id": 1,
-            "question": "question",
-            "answer": "answer",
-            "difficulty": 3,
-            "category": 2
-        }
-        }
-        ```
+```json
+{
+    "question": {
+        "id": 1,
+        "question": "question",
+        "answer": "answer",
+        "difficulty": 3,
+        "category": 2
+    }
+}
+```
     
