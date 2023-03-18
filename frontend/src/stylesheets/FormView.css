@@ -5,3 +5,8 @@
 #add-form {
   text-align: center;
 }
+
+input[type="text"], select{
+  margin-left: 10px;
+  border: 1px rgb(44, 174, 194) solid;
+}

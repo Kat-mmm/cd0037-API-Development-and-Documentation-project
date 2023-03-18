@@ -1,4 +1,3 @@
-import os
 from decouple import config
 import unittest
 import json
@@ -37,7 +36,7 @@ class TriviaTestCase(unittest.TestCase):
         pass
 
     
-
+    
     """
     TODO
     Write at least one test for each test for successful operation and for expected errors.
@@ -69,14 +68,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     def test_question_delete(self):
-        res = self.client().delete('/questions/6')
+        res = self.client().delete('/questions/34')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 6).one_or_none()
+        question = Question.query.filter(Question.id == 34).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 6)
+        self.assertEqual(data['deleted'], 34)
         self.assertEqual(question, None)
 
     def test_422_if_question_non_existant(self):

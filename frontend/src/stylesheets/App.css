@@ -1,6 +1,6 @@
 .App-header {
-  background-color: #222;
-  color: white;
+  background-color: black;
+  color: rgb(102, 193, 218);
   display: flex;
   justify-content: space-between;
   height: 75px;
