@@ -12,6 +12,7 @@
   width: 60%;
 }
 
+
 .questions-list {
   flex-basis: 75%;
   text-align: center;
@@ -19,9 +20,10 @@
 
 .Question-holder {
   padding: 10px 20px;
-  border: 2px black solid;
+  border: 2px rgb(44, 174, 194) solid;
   text-align: left;
   margin: 7px;
+  border-radius: 5px;
 }
 
 .Question-status {
